@@ -53,10 +53,12 @@ func (a *Application) StartServer() error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
-	if err != nil {
-		log.Fatal(err)
-	}
+	defer func(path string) {
+		err = os.RemoveAll(path)
+		if err != nil {
+
+		}
+	}(dir)
 	p := persister.NewLocal(dir)
 	uploadSvc := service.NewMultiServicer(p, mongoPersister, sc)
 
