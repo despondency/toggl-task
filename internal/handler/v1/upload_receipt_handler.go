@@ -2,24 +2,25 @@ package v1
 
 import (
 	"bytes"
+	"context"
 	"fmt"
-	"github.com/despondency/toggl-task/internal/persister"
+	"github.com/despondency/toggl-task/internal/service"
 	"github.com/gofiber/fiber/v2"
 	"io"
 	"net/http"
 )
 
-type UploadFileHandler struct {
-	persister persister.RawFilePersister
+type UploadReceiptHandler struct {
+	receiptSvc service.ReceiptServicer
 }
 
-func NewUploadFileHandler(persister persister.RawFilePersister) *UploadFileHandler {
-	return &UploadFileHandler{persister: persister}
+func NewUploadReceiptHandler(uploadSvc service.ReceiptServicer) *UploadReceiptHandler {
+	return &UploadReceiptHandler{receiptSvc: uploadSvc}
 }
 
-func (ufh *UploadFileHandler) GetUploadFileHandler() func(c *fiber.Ctx) error {
+func (urh *UploadReceiptHandler) GetUploadFileHandler() func(c *fiber.Ctx) error {
 	handler := func(c *fiber.Ctx) error {
-		f, err := c.FormFile("persister")
+		f, err := c.FormFile("file")
 		if err != nil {
 			c.Response().AppendBodyString("can't find form element 'persister'")
 			return c.SendStatus(fiber.StatusBadRequest)
@@ -39,9 +40,14 @@ func (ufh *UploadFileHandler) GetUploadFileHandler() func(c *fiber.Ctx) error {
 			c.Response().AppendBodyString(fmt.Sprintf("unknown mime type %s", mimeType))
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
-		err = ufh.persister.Persist(f.Filename, buf.Bytes())
+		fileUploadResUuid, err := urh.receiptSvc.CreateReceipt(context.Background(), f.Filename, buf.Bytes(), mimeType)
 		if err != nil {
-			c.Response().AppendBodyString("could not persist persister")
+			c.Response().AppendBodyString(fmt.Sprintf("could not persist %v", err))
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+		err = c.SendString(fileUploadResUuid)
+		if err != nil {
+			c.Response().AppendBodyString("cannot add result uuid to body")
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 		return c.SendStatus(fiber.StatusAccepted)
