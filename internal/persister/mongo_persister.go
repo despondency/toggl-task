@@ -63,5 +63,5 @@ func (mp *MongoPersister) Persist(ctx context.Context, model *ResultModel) (stri
 	if !ok {
 		return "", fmt.Errorf("cant cast inserted id to object ID")
 	}
-	return objID.String(), nil
+	return objID.Hex(), nil
 }

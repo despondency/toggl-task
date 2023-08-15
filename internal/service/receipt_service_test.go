@@ -13,7 +13,7 @@ import (
 	"testing"
 )
 
-func TestMultiServicer_CreateReceipt(t *testing.T) {
+func TestUnitMultiServicer_CreateReceipt(t *testing.T) {
 	testCases := []struct {
 		ctx            context.Context
 		name           string
@@ -40,6 +40,7 @@ func TestMultiServicer_CreateReceipt(t *testing.T) {
 			},
 		},
 	}
+
 	for _, tc := range testCases {
 		instance := tc.createInstance(tc.ctx, t)
 		id, err := instance.CreateReceipt(tc.ctx, tc.fileName, tc.fileContent, tc.mimeType)

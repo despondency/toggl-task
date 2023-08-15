@@ -6,5 +6,6 @@ import (
 )
 
 func main() {
-	log.Fatal(application.StartServer(8080))
+	app := application.NewApplication(8080)
+	log.Fatal(app.StartServer())
 }

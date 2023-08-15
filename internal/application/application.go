@@ -16,9 +16,19 @@ import (
 
 type Application struct {
 	port int
+	app  *fiber.App
 }
 
-func StartServer(port int) error {
+func NewApplication(port int) *Application {
+	return &Application{
+		port: port,
+		app: fiber.New(
+			fiber.Config{BodyLimit: 4 * 1024 * 1024}, //
+		),
+	}
+}
+
+func (a *Application) StartServer() error {
 	app := fiber.New(
 		fiber.Config{BodyLimit: 4 * 1024 * 1024}, //
 	)
@@ -46,5 +56,9 @@ func StartServer(port int) error {
 	v1Handlers.Post("/receipt", v1.NewUploadReceiptHandler(uploadSvc).GetUploadFileHandler())
 	v1Handlers.Get("/receipt", v1.NewGetReceiptResultHandler(uploadSvc).GetReceiptHandler())
 
-	return app.Listen(fmt.Sprintf(":%d", port))
+	return app.Listen(fmt.Sprintf(":%d", a.port))
+}
+
+func (a *Application) StopServer() error {
+	return a.app.Shutdown()
 }

@@ -10,6 +10,10 @@ import (
 	"net/http"
 )
 
+type UploadResultModel struct {
+	Id string `json:"id"`
+}
+
 type UploadReceiptHandler struct {
 	receiptSvc service.ReceiptServicer
 }
@@ -40,12 +44,12 @@ func (urh *UploadReceiptHandler) GetUploadFileHandler() func(c *fiber.Ctx) error
 			c.Response().AppendBodyString(fmt.Sprintf("unknown mime type %s", mimeType))
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
-		fileUploadResUuid, err := urh.receiptSvc.CreateReceipt(context.Background(), f.Filename, buf.Bytes(), mimeType)
+		fileUploadID, err := urh.receiptSvc.CreateReceipt(context.Background(), f.Filename, buf.Bytes(), mimeType)
 		if err != nil {
 			c.Response().AppendBodyString(fmt.Sprintf("could not persist %v", err))
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
-		err = c.SendString(fileUploadResUuid)
+		err = c.JSON(&UploadResultModel{Id: fileUploadID})
 		if err != nil {
 			c.Response().AppendBodyString("cannot add result uuid to body")
 			return c.SendStatus(fiber.StatusInternalServerError)

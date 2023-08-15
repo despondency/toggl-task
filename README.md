@@ -24,6 +24,7 @@ go install github.com/vektra/mockery/v2@v2.32.4
 ## Run Service
 
 ```shell
+gcloud auth application-default login
 make run
 ```
 
@@ -36,6 +37,7 @@ make unit-tests
 ## Run integration tests
 
 ```
+gcloud auth application-default login
 make integration-tests
 ```
 
@@ -80,4 +82,18 @@ we allow ourselves to mature each one on their own without impacting all of the 
 All of those can be deployed in Kubernetes as deployments. 
 Of course all this requires to have distributed tracing, metrics and alerting. 
 
+Also, general stuff around code sanitization, adding more configurability to application.go by introducing Config per environment
 
+## Few words about the testing requirements
+
+Small sanity unit tests that verify order of operations in this case since we don't have much business logic that is to be verified right now
+
+I have not focused to go for 100% unit test coverage since I think the idea of this exercise is to show ideas and ways to do stuff rather than writing 20+ test cases that cover every possible err scenario.
+I agree that in a real-life project I aim for 80%+. Teammates like to sleep without interruption, good for team morale.
+
+Integration tests on the endpoints use the provided Google Document AI processor, some people may argue that external dependencies in integration test should be mocked
+and I agree to some extent, because using the real Google Document AI processor the test turns into e2e test, its a really thin line tho.
+
+I'd experiment more with testcontainers for integration tests + getting the app up and running in docker rather than starting an in memory server
+I've split the integration tests from the unit tests by using a ./tests folder for integration tests. Its stylistic opinion and not something to enforce. Since in a 
+real world scenario i'd have httptest validation unit tests on the handlers
