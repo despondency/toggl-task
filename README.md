@@ -1,6 +1,6 @@
 # Introduction
 
-This service is allowing the upload of a receipt in png,jpeg,pdf.
+This service allows the upload of a receipt in png,jpeg,pdf.
 Uses Google Document AI to scan it, stores the raw receipt on local disk and uploads scanned results to MongoDB
 
 ## Dependencies
