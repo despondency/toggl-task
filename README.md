@@ -80,7 +80,7 @@ Of course all this requires to have distributed tracing, metrics and alerting.
 
 Also, general stuff around code sanitization, adding more configurability to application.go by introducing Config per environment
 
-## Few words about the testing requirements
+## Few words about the testing
 
 Small sanity unit tests that verify order of operations in this case since we don't have much business logic that is to be verified right now
 

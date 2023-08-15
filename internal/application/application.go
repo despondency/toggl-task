@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"os"
 	"time"
 )
 
@@ -48,7 +49,15 @@ func (a *Application) StartServer() error {
 	}
 	mongoPersister := persister.NewMongoPersister(client)
 	sc := scanner.NewGoogleScanner(ctx)
-	p := persister.NewLocal("/home/despondency/Downloads")
+	dir, err := os.MkdirTemp("", "")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	p := persister.NewLocal(dir)
 	uploadSvc := service.NewMultiServicer(p, mongoPersister, sc)
 
 	v1Handlers := app.Group("/v1")
