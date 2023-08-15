@@ -3,10 +3,6 @@
 This service is allowing the upload of a receipt in png,jpeg,pdf.
 Uses Google Document AI to scan it, stores the raw receipt on local disk and uploads scanned results to MongoDB
 
-***I am not including the receipts you've sent me here in the project root, 
-since they may or may not contain sensitive information.
-Extract them somewhere on your machine and use the curl commands below to do a request***
-
 ## Dependencies
 
 Install the following
