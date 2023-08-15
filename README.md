@@ -82,7 +82,8 @@ Also, general stuff around code sanitization, adding more configurability to app
 
 ## Few words about the testing
 
-Small sanity unit tests that verify order of operations in this case since we don't have much business logic that is to be verified right now
+Small sanity table unit test for the receipt_service that verify order of operations in this case since we don't have much business logic that is to be verified right now
+I'd write httptest unit tests for the handlers even though there is integration tests. For the persisters and mongo as well. It's going to be mostly mocking and verification of ops.
 
 I have not focused to go for 100% unit test coverage since I think the idea of this exercise is to show ideas and ways to do stuff rather than writing 20+ test cases that cover every possible err scenario.
 I agree that in a real-life project I aim for 80%+. Teammates like to sleep without interruption, good for team morale.
