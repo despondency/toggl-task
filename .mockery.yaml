@@ -1,9 +1,13 @@
-with-expecter: true
+quiet: False
 disable-version-string: True
+with-expecter: True
 mockname: "{{.InterfaceName}}"
-filename: "{{.MockName}}.go"
-outpkg: mocks
+filename: "{{.InterfaceNameSnake}}_mock.go"
+dir: "mocks/{{.PackageName}}"
+outpkg: "{{.PackageName}}mock"
 packages:
-  github.com/despondency/toggl-task/internal:
-    config:
-      all: True
+  github.com/despondency/toggl-task/internal/persister:
+  github.com/despondency/toggl-task/internal/service:
+  github.com/despondency/toggl-task/internal/scanner:
+
+

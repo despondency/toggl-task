@@ -3,7 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
-	v1 "github.com/despondency/toggl-task/internal/handler/v1"
+	"github.com/despondency/toggl-task/internal/handler/v1"
 	"github.com/despondency/toggl-task/internal/persister"
 	"github.com/despondency/toggl-task/internal/scanner"
 	"github.com/despondency/toggl-task/internal/service"
