@@ -86,11 +86,11 @@ Small sanity table unit test for the receipt_service that verify order of operat
 I'd write httptest unit tests for the handlers even though there are integration tests. For the persisters and mongo as well. It's going to be mostly mocking and verification of ops.
 
 I have not focused to go for 100% unit test coverage since I think the idea of this exercise is to show ideas and ways to do stuff rather than writing 20+ test cases that cover every possible err scenario.
-I agree that in a real-life project I aim for 80%+. Teammates like to sleep without interruption, good for team morale.
+I agree that in a real-life project I'd aim for 80%+. Teammates like to sleep without interruption, good for team morale.
 
 Integration tests on the endpoints use the provided Google Document AI processor, some people may argue that external dependencies in integration test should be mocked
-and I agree to some extent, because using the real Google Document AI processor the test turns into e2e test, its a really thin line tho.
+and I agree to some extent, because using the real Google Document AI processor in the test turns into e2e test, its a really thin line tho.
 
 I'd experiment more with testcontainers for integration tests + getting the app up and running in docker rather than starting an in memory server
-I've split the integration tests from the unit tests by using a ./tests folder for integration tests. Its stylistic opinion and not something to enforce. Since in a 
-real world scenario i'd have httptest validation unit tests on the handlers
+I've split the integration tests from the unit tests by using a ./tests folder for integration tests. Its stylistic opinion and not something to enforce, since in a 
+real world scenario i'd have httptest validation unit tests on the handlers with the same name, and don't really wanna put both integration test and unit test in same file, it gets cluttered when there are a lot of tests
