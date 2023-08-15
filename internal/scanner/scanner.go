@@ -24,7 +24,8 @@ type GoogleScanner struct {
 func (gs *GoogleScanner) Scan(ctx context.Context, fileContent []byte, mimeType string) (*ScannedResult, error) {
 	req := &documentaipb.ProcessRequest{
 		SkipHumanReview: true,
-		Name:            fmt.Sprintf("projects/%s/locations/%s/processors/%s", "235872245316", "eu", "5cfedb6edd696fb"),
+		// this is hardcoded, in a real life project i'd inject from env variables or read from Vault.
+		Name: fmt.Sprintf("projects/%s/locations/%s/processors/%s", "235872245316", "eu", "5cfedb6edd696fb"),
 		Source: &documentaipb.ProcessRequest_RawDocument{
 			RawDocument: &documentaipb.RawDocument{
 				Content:  fileContent,
