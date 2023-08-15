@@ -34,7 +34,7 @@ func NewMongoPersister(client *mongo.Client) ResultPersister {
 func (mp *MongoPersister) Get(ctx context.Context, id string) (*ResultModel, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	col := mp.client.Database("mongo").Collection("receipt_results")
+	col := mp.client.Database("toggl_db").Collection("receipt_results")
 	res := &ResultModel{}
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -51,7 +51,7 @@ func (mp *MongoPersister) Get(ctx context.Context, id string) (*ResultModel, err
 }
 
 func (mp *MongoPersister) Persist(ctx context.Context, model *ResultModel) (string, error) {
-	col := mp.client.Database("mongo").Collection("receipt_results")
+	col := mp.client.Database("toggl_db").Collection("receipt_results")
 	res, err := col.InsertOne(ctx, model)
 	model.UUID = uuid.New().String()
 	if err != nil {

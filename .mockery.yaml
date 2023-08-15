@@ -1,0 +1,9 @@
+with-expecter: true
+disable-version-string: True
+mockname: "{{.InterfaceName}}"
+filename: "{{.MockName}}.go"
+outpkg: mocks
+packages:
+  github.com/despondency/toggl-task/internal:
+    config:
+      all: True
