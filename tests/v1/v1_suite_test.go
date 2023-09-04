@@ -7,7 +7,12 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	app := application.NewApplication(8084)
+	cfg := &application.Config{}
+	cfg.DatabaseURI = "localhost:8081"
+	cfg.Env = "test"
+	cfg.DatabaseUser = "mongouser"
+	cfg.DatabasePassword = "mongopass"
+	app, err := application.NewBuilder().WithConfig(cfg).WithPort(8084).Build()
 	go func() {
 		err := app.StartServer()
 		if err != nil {
@@ -15,7 +20,7 @@ func TestMain(m *testing.M) {
 		}
 	}()
 	exitVal := m.Run()
-	err := app.StopServer()
+	err = app.StopServer()
 	if err != nil {
 		panic(err)
 	}

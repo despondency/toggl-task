@@ -23,7 +23,6 @@ type Application struct {
 
 type Builder struct {
 	port   int
-	app    *fiber.App
 	config *Config
 }
 
@@ -46,7 +45,6 @@ func (b *Builder) Build() (*Application, error) {
 		return nil, fmt.Errorf("application port not set")
 	}
 	return &Application{
-		app:    b.app,
 		port:   b.port,
 		config: b.config,
 	}, nil
@@ -56,6 +54,7 @@ func (a *Application) StartServer() error {
 	app := fiber.New(
 		fiber.Config{BodyLimit: 4 * 1024 * 1024}, //
 	)
+	a.app = app
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	clientOpts := options.Client().SetHosts(

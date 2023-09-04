@@ -43,37 +43,37 @@ func uploadReceipt() string {
 	part1, errFile1 := writer.CreateFormFile("file", filepath.Base("../../testdata/receipt1.png"))
 	_, errFile1 = io.Copy(part1, file)
 	if errFile1 != nil {
-		log.Error(errFile1)
+		log.Fatal(errFile1)
 		return ""
 	}
 	err := writer.Close()
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 		return ""
 	}
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
 
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 		return ""
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	res, err := client.Do(req)
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 		return ""
 	}
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 		return ""
 	}
 	uploadModelRes := &v1.UploadResultModel{}
 	err = json.Unmarshal(body, uploadModelRes)
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 		return ""
 	}
 	log.Infof("id is %s", string(body))
