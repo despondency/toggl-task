@@ -1,11 +1,16 @@
 package currency
 
 import (
+	"bytes"
 	"encoding/json"
-	"github.com/everapihq/currencyapi-go"
+	"fmt"
+	"io"
 	"math/big"
+	"net/http"
 	"time"
 )
+
+const baseCurrencyAPIURL = "https://api.currencyapi.com/v3/"
 
 type ConvertResponse struct {
 	Meta Meta                 `json:"meta"`
@@ -36,19 +41,59 @@ func NewCurrencyConverter(caller ConverterCaller) Converter {
 }
 
 type APICurrencyConverterCaller struct {
+	client *http.Client
+	apiKey string
 }
 
-func NewAPICurrencyConverterCaller(apiKey string) ConverterCaller {
-	if apiKey != "" {
-		currencyapi.Init(apiKey)
+func WithAPIKey(apiKey string) APICurrencyConverterCallerOptions {
+	return func(a *APICurrencyConverterCaller) {
+		a.apiKey = apiKey
 	}
-	return &APICurrencyConverterCaller{}
+}
+
+func WithHTTPClient(client *http.Client) APICurrencyConverterCallerOptions {
+	return func(a *APICurrencyConverterCaller) {
+		a.client = client
+	}
+}
+
+type APICurrencyConverterCallerOptions func(*APICurrencyConverterCaller)
+
+func NewAPICurrencyConverterCaller(ops ...APICurrencyConverterCallerOptions) (ConverterCaller, error) {
+	caller := &APICurrencyConverterCaller{}
+	for _, op := range ops {
+		op(caller)
+	}
+	if caller.apiKey == "" {
+		return nil, fmt.Errorf("no api key present")
+	}
+	if caller.client == nil {
+		caller.client = http.DefaultClient
+	}
+	return caller, nil
 }
 
 func (m *APICurrencyConverterCaller) ConvertCurrency(req map[string]string) (*ConvertResponse, error) {
-	byteResp := currencyapi.Latest(req)
+	jsonReq, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	httpReq, err := http.NewRequest(http.MethodGet, baseCurrencyAPIURL+"latest", bytes.NewBuffer(jsonReq))
+	if err != nil {
+		return nil, err
+	}
+	httpReq.Header.Set("apikey", m.apiKey)
+	response, err := m.client.Do(httpReq)
+	if err != nil {
+		return nil, err
+	}
 	currencyConvertResp := &ConvertResponse{}
-	err := json.Unmarshal(byteResp, currencyConvertResp)
+	bodyBytes, err := io.ReadAll(response.Body)
+	defer response.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(bodyBytes, currencyConvertResp)
 	if err != nil {
 		return nil, err
 	}
