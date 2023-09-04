@@ -30,15 +30,6 @@ type Builder struct {
 	config      *Config
 }
 
-func NewApplication(port int) *Application {
-	return &Application{
-		port: port,
-		app: fiber.New(
-			fiber.Config{BodyLimit: 4 * 1024 * 1024}, //
-		),
-	}
-}
-
 func NewBuilder() *Builder {
 	return &Builder{}
 }
@@ -85,11 +76,11 @@ func (a *Application) StartServer() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	clientOpts := options.Client().SetHosts(
-		[]string{a.config.dbURI},
+		[]string{a.config.DbURI},
 	).SetAuth(
 		options.Credential{
-			Username: a.config.dbUser,
-			Password: a.config.dbPassword,
+			Username: a.config.DbUser,
+			Password: a.config.DbPassword,
 		},
 	)
 	client, err := mongo.Connect(ctx, clientOpts)

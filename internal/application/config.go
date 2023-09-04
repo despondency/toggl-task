@@ -1,8 +1,8 @@
 package application
 
 type Config struct {
-	env        string
-	dbURI      string
-	dbPassword string
-	dbUser     string
+	Env        string
+	DbURI      string
+	DbPassword string
+	DbUser     string
 }
