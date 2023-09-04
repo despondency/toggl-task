@@ -3,7 +3,6 @@ package application
 import (
 	"context"
 	"fmt"
-	"github.com/despondency/toggl-task/internal/currency"
 	"github.com/despondency/toggl-task/internal/handler/v1"
 	"github.com/despondency/toggl-task/internal/persister"
 	"github.com/despondency/toggl-task/internal/scanner"
@@ -17,17 +16,15 @@ import (
 )
 
 type Application struct {
-	port        int
-	app         *fiber.App
-	currencySvc currency.Converter
-	config      *Config
+	port   int
+	app    *fiber.App
+	config *Config
 }
 
 type Builder struct {
-	port        int
-	app         *fiber.App
-	currencySvc currency.Converter
-	config      *Config
+	port   int
+	app    *fiber.App
+	config *Config
 }
 
 func NewBuilder() *Builder {
@@ -39,33 +36,19 @@ func (b *Builder) WithConfig(config *Config) *Builder {
 	return b
 }
 
-func (b *Builder) WithCurrencyApi(currencyManager currency.Converter) *Builder {
-	b.currencySvc = currencyManager
-	return b
-}
-
 func (b *Builder) WithPort(port int) *Builder {
 	b.port = port
 	return b
 }
 
-func (b *Builder) WithFiber(app *fiber.App) *Builder {
-	b.app = app
-	return b
-}
-
 func (b *Builder) Build() (*Application, error) {
-	if b.currencySvc == nil {
-		return nil, fmt.Errorf("no currency svc provided")
-	}
 	if b.port == 0 {
 		return nil, fmt.Errorf("application port not set")
 	}
 	return &Application{
-		app:         b.app,
-		port:        b.port,
-		currencySvc: b.currencySvc,
-		config:      b.config,
+		app:    b.app,
+		port:   b.port,
+		config: b.config,
 	}, nil
 }
 
@@ -76,11 +59,11 @@ func (a *Application) StartServer() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	clientOpts := options.Client().SetHosts(
-		[]string{a.config.DbURI},
+		[]string{a.config.DatabaseURI},
 	).SetAuth(
 		options.Credential{
-			Username: a.config.DbUser,
-			Password: a.config.DbPassword,
+			Username: a.config.DatabaseUser,
+			Password: a.config.DatabasePassword,
 		},
 	)
 	client, err := mongo.Connect(ctx, clientOpts)

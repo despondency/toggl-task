@@ -8,28 +8,27 @@ import (
 
 func main() {
 	cfg := &application.Config{}
-
+	viper.AutomaticEnv()
 	env := viper.GetString("ENVIRONMENT")
 	if env == "" {
 		env = "TEST"
 	}
-	dbUser := viper.GetString("DB_USER")
+	cfg.Env = env
+	dbUser := viper.GetString("DATABASE_USER")
 	if dbUser == "" {
 		panic("db user is not set")
 	}
-	dbPassword := viper.GetString("DB_PASSWORD")
+	cfg.DatabaseUser = dbUser
+	dbPassword := viper.GetString("DATABASE_PASSWORD")
 	if dbPassword == "" {
 		panic("db password is not set")
 	}
-	dbUri := viper.GetString("DB_URI")
+	cfg.DatabasePassword = dbPassword
+	dbUri := viper.GetString("DATABASE_URI")
 	if dbUri == "" {
 		panic("db uri is not set")
 	}
-	cfg.Env = env
-	cfg.DbUser = dbUser
-	cfg.DbPassword = dbPassword
-	cfg.DbURI = dbUri
-
+	cfg.DatabaseURI = dbUri
 	app, err := application.NewBuilder().WithConfig(cfg).WithPort(8080).Build()
 	if err != nil {
 		panic(err)
