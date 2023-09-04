@@ -14,10 +14,14 @@ func TestUnitConverter_Convert(t *testing.T) {
 	testCases := []struct {
 		name           string
 		expectedErr    error
+		amount         *big.Float
+		expected       *big.Float
 		createInstance func(t *testing.T) currency.Converter
 	}{
 		{
-			name: "simple case, no error",
+			name:     "simple case, no error",
+			amount:   big.NewFloat(100),
+			expected: big.NewFloat(89),
 			createInstance: func(t *testing.T) currency.Converter {
 				currencyCaller := currencymock.NewConverterCaller(t)
 				currencyCaller.EXPECT().ConvertCurrency(map[string]string{
@@ -64,13 +68,13 @@ func TestUnitConverter_Convert(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			instance := tc.createInstance(t)
-			resp, err := instance.Convert(big.NewFloat(100), "USD")
+			resp, err := instance.Convert(tc.amount, "USD")
 			if tc.expectedErr != nil {
 				assert.EqualErrorf(t, err, tc.expectedErr.Error(), "")
 			} else {
 				assert.NoError(t, err)
+				assert.Equal(t, 0, tc.expected.Cmp(resp), fmt.Sprintf("expected %s, to equal %s", tc.expected.String(), resp.String()))
 			}
-			fmt.Println(resp)
 		})
 	}
 }
