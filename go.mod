@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	cloud.google.com/go/documentai v1.22.0
+	github.com/everapihq/currencyapi-go v0.1.0
 	github.com/gofiber/fiber/v2 v2.48.0
 	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.8.1
