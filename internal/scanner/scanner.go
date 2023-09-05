@@ -6,9 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/gofiber/fiber/v2/log"
 	"google.golang.org/api/option"
-	"strconv"
 )
 
 type ScannedResult struct {
@@ -16,34 +14,34 @@ type ScannedResult struct {
 }
 
 type Model struct {
-	currency        *string
-	deliveryDate    *string
-	dueDate         *string
-	invoiceDate     *string
-	receiptDate     *string
-	netAmount       *float64
-	totalAmount     *float64
-	totalTaxAmount  *float64
-	vatAmount       *float64
-	vatCategoryCode *string
-	vatTaxAmount    *float64
-	vatTaxRate      *float64
-	items           []*Item
+	Currency        *string
+	DeliveryDate    *string
+	DueDate         *string
+	InvoiceDate     *string
+	ReceiptDate     *string
+	NetAmount       *string
+	TotalAmount     *string
+	TotalTaxAmount  *string
+	VatAmount       *string
+	VatCategoryCode *string
+	VatTaxAmount    *string
+	VatTaxRate      *string
+	Items           []*Item
 }
 
 type Item struct {
-	amount        *int
-	txt           *string
-	description   *string
-	productCode   *string
-	purchaseOrder *string
-	quantity      *int64
-	unit          *string
-	unitPrice     *float64
+	Amount        *int
+	Txt           *string
+	Description   *string
+	ProductCode   *string
+	PurchaseOrder *string
+	Quantity      *string
+	Unit          *string
+	UnitPrice     *string
 }
 
 func (m *Model) String() string {
-	return fmt.Sprintln(m.totalAmount)
+	return fmt.Sprintln(m.TotalAmount)
 }
 
 type Scanner interface {
@@ -74,7 +72,7 @@ func (gs *GoogleScanner) Scan(ctx context.Context, fileContent []byte, mimeType 
 	document := resp.GetDocument()
 	model := createModel(document)
 
-	log.Infof("%s ", model)
+	_ = model
 
 	entities, err := json.Marshal(document.GetEntities())
 	if err != nil {
@@ -87,52 +85,52 @@ func (gs *GoogleScanner) Scan(ctx context.Context, fileContent []byte, mimeType 
 
 func createModel(document *documentaipb.Document) *Model {
 	model := &Model{
-		items: make([]*Item, 0),
+		Items: make([]*Item, 0),
 	}
 	var i *Item
 	for _, entity := range document.GetEntities() {
 		switch entity.GetType() {
 		case "currency":
-			model.currency = strPtr(entity.GetMentionText())
+			model.Currency = strPtr(entity.GetMentionText())
 		case "delivery_date":
-			model.deliveryDate = strPtr(entity.GetMentionText())
+			model.DeliveryDate = strPtr(entity.GetMentionText())
 		case "due_date":
-			model.dueDate = strPtr(entity.GetMentionText())
+			model.DueDate = strPtr(entity.GetMentionText())
 		case "invoice_date":
-			model.invoiceDate = strPtr(entity.GetMentionText())
+			model.InvoiceDate = strPtr(entity.GetMentionText())
 		case "receipt_date":
-			model.receiptDate = strPtr(entity.GetMentionText())
+			model.ReceiptDate = strPtr(entity.GetMentionText())
 		case "net_amount":
-			model.netAmount = parseFloat64(entity)
+			model.NetAmount = strPtr(entity.GetMentionText())
 		case "total_amount":
-			model.totalAmount = parseFloat64(entity)
+			model.TotalAmount = strPtr(entity.GetMentionText())
 		case "total_tax_amount":
-			model.totalTaxAmount = parseFloat64(entity)
+			model.TotalTaxAmount = strPtr(entity.GetMentionText())
 		case "vat_amount":
-			model.vatAmount = parseFloat64(entity)
+			model.VatAmount = strPtr(entity.GetMentionText())
 		case "vat_category_code":
 			vatCategoryCode := entity.GetMentionText()
-			model.vatCategoryCode = &vatCategoryCode
+			model.VatCategoryCode = &vatCategoryCode
 		case "vat_tax_amount":
-			model.vatTaxAmount = parseFloat64(entity)
+			model.VatTaxAmount = strPtr(entity.GetMentionText())
 		case "vat_tax_rate":
-			model.vatTaxRate = parseFloat64(entity)
+			model.VatTaxRate = strPtr(entity.GetMentionText())
 		case "line_item":
 			i = &Item{}
-			i.txt = strPtr(entity.GetMentionText())
-			model.items = append(model.items, i)
+			i.Txt = strPtr(entity.GetMentionText())
+			model.Items = append(model.Items, i)
 		case "line_item/description":
-			i.description = strPtr(entity.GetMentionText())
+			i.Description = strPtr(entity.GetMentionText())
 		case "line_item/product_code":
-			i.productCode = strPtr(entity.GetMentionText())
+			i.ProductCode = strPtr(entity.GetMentionText())
 		case "line_item/purchase_order":
-			i.purchaseOrder = strPtr(entity.GetMentionText())
+			i.PurchaseOrder = strPtr(entity.GetMentionText())
 		case "line_item/quantity":
-			i.quantity = parseInt(entity)
+			i.Quantity = strPtr(entity.GetMentionText())
 		case "line_item/unit":
-			i.unit = strPtr(entity.GetMentionText())
+			i.Unit = strPtr(entity.GetMentionText())
 		case "line_item/unit_price":
-			i.unitPrice = parseFloat64(entity)
+			i.UnitPrice = strPtr(entity.GetMentionText())
 		}
 	}
 	return model
@@ -140,30 +138,6 @@ func createModel(document *documentaipb.Document) *Model {
 
 func strPtr(s string) *string {
 	return &s
-}
-
-func parseInt(entity *documentaipb.Document_Entity) *int64 {
-	var parsed int64
-	var err error
-	if entity.GetMentionText() != "" {
-		parsed, err = strconv.ParseInt(entity.GetMentionText(), 10, 64)
-		if err != nil {
-			return nil
-		}
-	}
-	return &parsed
-}
-
-func parseFloat64(entity *documentaipb.Document_Entity) *float64 {
-	var parsed float64
-	var err error
-	if entity.GetMentionText() != "" {
-		parsed, err = strconv.ParseFloat(entity.GetMentionText(), 64)
-		if err != nil {
-			return nil
-		}
-	}
-	return &parsed
 }
 
 func NewGoogleScanner(ctx context.Context) Scanner {
