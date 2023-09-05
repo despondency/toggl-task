@@ -29,7 +29,11 @@ func main() {
 		panic("db uri is not set")
 	}
 	cfg.DatabaseURI = dbUri
-	app, err := application.NewBuilder().WithConfig(cfg).WithPort(8080).Build()
+	port := viper.GetInt("PORT")
+	if port != 0 {
+		cfg.Port = port
+	}
+	app, err := application.NewBuilder().WithConfig(cfg).WithPort(port).Build()
 	if err != nil {
 		panic(err)
 	}

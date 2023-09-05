@@ -27,14 +27,15 @@ make run
 ## Run unit tests
 
 ```
-make unit-tests
+make test-unit
 ```
 
 ## Run integration tests
 
 ```
 gcloud auth application-default login
-make integration-tests
+make run
+make test-integration
 ```
 
 ## Generate mocks 
