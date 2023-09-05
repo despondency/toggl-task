@@ -9,5 +9,7 @@ packages:
   github.com/despondency/toggl-task/internal/persister:
   github.com/despondency/toggl-task/internal/service:
   github.com/despondency/toggl-task/internal/scanner:
+  github.com/despondency/toggl-task/internal/currency:
+
 
 

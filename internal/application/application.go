@@ -16,31 +16,53 @@ import (
 )
 
 type Application struct {
-	port int
-	app  *fiber.App
+	port   int
+	app    *fiber.App
+	config *Config
 }
 
-func NewApplication(port int) *Application {
-	return &Application{
-		port: port,
-		app: fiber.New(
-			fiber.Config{BodyLimit: 4 * 1024 * 1024}, //
-		),
+type Builder struct {
+	port   int
+	config *Config
+}
+
+func NewBuilder() *Builder {
+	return &Builder{}
+}
+
+func (b *Builder) WithConfig(config *Config) *Builder {
+	b.config = config
+	return b
+}
+
+func (b *Builder) WithPort(port int) *Builder {
+	b.port = port
+	return b
+}
+
+func (b *Builder) Build() (*Application, error) {
+	if b.port == 0 {
+		return nil, fmt.Errorf("application port not set")
 	}
+	return &Application{
+		port:   b.port,
+		config: b.config,
+	}, nil
 }
 
 func (a *Application) StartServer() error {
 	app := fiber.New(
 		fiber.Config{BodyLimit: 4 * 1024 * 1024}, //
 	)
+	a.app = app
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	clientOpts := options.Client().SetHosts(
-		[]string{"localhost:8081"},
+		[]string{a.config.DatabaseURI},
 	).SetAuth(
 		options.Credential{
-			Username: "mongouser",
-			Password: "mongopass",
+			Username: a.config.DatabaseUser,
+			Password: a.config.DatabasePassword,
 		},
 	)
 	client, err := mongo.Connect(ctx, clientOpts)
