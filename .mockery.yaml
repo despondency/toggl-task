@@ -10,6 +10,7 @@ packages:
   github.com/despondency/toggl-task/internal/service:
   github.com/despondency/toggl-task/internal/scanner:
   github.com/despondency/toggl-task/internal/currency:
+  github.com/despondency/toggl-task/internal/translator:
 
 
 
