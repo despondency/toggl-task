@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	cloud.google.com/go/documentai v1.22.0
+	cloud.google.com/go/translate v1.9.0
 	github.com/gofiber/fiber/v2 v2.48.0
 	github.com/google/uuid v1.3.0
 	github.com/spf13/viper v1.16.0
