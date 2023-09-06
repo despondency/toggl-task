@@ -3,6 +3,7 @@ package v1
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/despondency/toggl-task/internal/service"
 	"github.com/gofiber/fiber/v2"
@@ -44,7 +45,21 @@ func (urh *UploadReceiptHandler) GetUploadFileHandler() func(c *fiber.Ctx) error
 			c.Response().AppendBodyString(fmt.Sprintf("unknown mime type %s", mimeType))
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
-		fileUploadID, err := urh.receiptSvc.CreateReceipt(context.Background(), f.Filename, buf.Bytes(), mimeType)
+		reqBody := c.FormValue("json")
+		uploadReceiptBody := &service.UploadReceiptBody{}
+		err = json.Unmarshal([]byte(reqBody), uploadReceiptBody)
+		if err != nil {
+			c.Response().AppendBodyString(fmt.Sprintf("failed to extract body"))
+			return c.SendStatus(fiber.StatusBadRequest)
+		}
+		fileUploadID, err := urh.receiptSvc.CreateReceipt(context.Background(), service.UploadPayload{
+			UploadReceiptBody: uploadReceiptBody,
+			FilePayload: service.FilePayload{
+				Receipt:  buf.Bytes(),
+				FileName: f.Filename,
+				MimeType: mimeType,
+			},
+		})
 		if err != nil {
 			c.Response().AppendBodyString(fmt.Sprintf("could not persist %v", err))
 			return c.SendStatus(fiber.StatusInternalServerError)

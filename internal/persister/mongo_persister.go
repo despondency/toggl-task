@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,8 +11,8 @@ import (
 )
 
 type ResultModel struct {
-	UUID    string `json:"uuid" bson:"uuid"`
-	Payload string `json:"payload" bson:"payload"`
+	Payload string   `json:"payload" bson:"payload"`
+	Tags    []string `json:"tags" bson:"tags"`
 }
 
 type ResultPersister interface {
@@ -55,7 +54,6 @@ func (mp *MongoPersister) Persist(ctx context.Context, model *ResultModel) (stri
 	defer cancel()
 	col := mp.client.Database("toggl_db").Collection("receipt_results")
 	res, err := col.InsertOne(ctx, model)
-	model.UUID = uuid.New().String()
 	if err != nil {
 		return "", err
 	}
