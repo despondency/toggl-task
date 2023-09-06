@@ -18,6 +18,7 @@ type ResultModel struct {
 type ResultPersister interface {
 	Persist(ctx context.Context, model *ResultModel) (string, error)
 	Get(ctx context.Context, id string) (*ResultModel, error)
+	GetByTags(ctx context.Context, tags []string) ([]*ResultModel, error)
 }
 
 type MongoPersister struct {
@@ -45,6 +46,32 @@ func (mp *MongoPersister) Get(ctx context.Context, id string) (*ResultModel, err
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, fmt.Errorf("record not found for id %s", id)
 		}
+	}
+	return res, nil
+}
+
+func (mp *MongoPersister) GetByTags(ctx context.Context, tags []string) ([]*ResultModel, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	cursor, err := mp.client.Database("toggl_db").
+		Collection("receipt_results").
+		Find(ctx,
+			bson.D{
+				{
+					"tags",
+					bson.D{{"$all", tags}},
+				},
+			})
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*ResultModel, 0)
+	err = cursor.All(ctx, &res)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, fmt.Errorf("records with tags %s not found", tags)
+		}
+		return nil, err
 	}
 	return res, nil
 }

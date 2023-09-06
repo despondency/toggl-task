@@ -88,6 +88,7 @@ func (a *Application) StartServer() error {
 
 	v1Handlers.Post("/receipt", v1.NewUploadReceiptHandler(uploadSvc).GetUploadFileHandler())
 	v1Handlers.Get("/receipt", v1.NewGetReceiptResultHandler(uploadSvc).GetReceiptHandler())
+	v1Handlers.Get("/receipts-by-tag", v1.NewGetReceiptsByTagResultHandler(uploadSvc).GetReceiptsByTagHandler())
 
 	return app.Listen(fmt.Sprintf(":%d", a.port))
 }

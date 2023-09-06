@@ -52,9 +52,9 @@ func (urh *UploadReceiptHandler) GetUploadFileHandler() func(c *fiber.Ctx) error
 			c.Response().AppendBodyString(fmt.Sprintf("failed to extract body"))
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
-		fileUploadID, err := urh.receiptSvc.CreateReceipt(context.Background(), service.UploadPayload{
+		fileUploadID, err := urh.receiptSvc.CreateReceipt(context.Background(), &service.UploadPayload{
 			UploadReceiptBody: uploadReceiptBody,
-			FilePayload: service.FilePayload{
+			FilePayload: &service.FilePayload{
 				Receipt:  buf.Bytes(),
 				FileName: f.Filename,
 				MimeType: mimeType,
