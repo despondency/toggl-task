@@ -5,7 +5,7 @@ package scannermock
 import (
 	context "context"
 
-	scanner "github.com/despondency/toggl-task/internal/scanner"
+	model "github.com/despondency/toggl-task/internal/model"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -23,19 +23,19 @@ func (_m *Scanner) EXPECT() *Scanner_Expecter {
 }
 
 // Scan provides a mock function with given fields: ctx, fileContent, mimeType
-func (_m *Scanner) Scan(ctx context.Context, fileContent []byte, mimeType string) (*scanner.ScannedResult, error) {
+func (_m *Scanner) Scan(ctx context.Context, fileContent []byte, mimeType string) (*model.Receipt, error) {
 	ret := _m.Called(ctx, fileContent, mimeType)
 
-	var r0 *scanner.ScannedResult
+	var r0 *model.Receipt
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []byte, string) (*scanner.ScannedResult, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []byte, string) (*model.Receipt, error)); ok {
 		return rf(ctx, fileContent, mimeType)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []byte, string) *scanner.ScannedResult); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []byte, string) *model.Receipt); ok {
 		r0 = rf(ctx, fileContent, mimeType)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*scanner.ScannedResult)
+			r0 = ret.Get(0).(*model.Receipt)
 		}
 	}
 
@@ -68,12 +68,12 @@ func (_c *Scanner_Scan_Call) Run(run func(ctx context.Context, fileContent []byt
 	return _c
 }
 
-func (_c *Scanner_Scan_Call) Return(_a0 *scanner.ScannedResult, _a1 error) *Scanner_Scan_Call {
+func (_c *Scanner_Scan_Call) Return(_a0 *model.Receipt, _a1 error) *Scanner_Scan_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Scanner_Scan_Call) RunAndReturn(run func(context.Context, []byte, string) (*scanner.ScannedResult, error)) *Scanner_Scan_Call {
+func (_c *Scanner_Scan_Call) RunAndReturn(run func(context.Context, []byte, string) (*model.Receipt, error)) *Scanner_Scan_Call {
 	_c.Call.Return(run)
 	return _c
 }

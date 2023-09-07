@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	v1 "github.com/despondency/toggl-task/internal/handler/v1"
+	"github.com/despondency/toggl-task/internal/model"
 	"github.com/despondency/toggl-task/internal/service"
 	"github.com/gofiber/fiber/v2/log"
 	"io"
@@ -35,7 +35,7 @@ func TestIntegration_UploadReceipt(t *testing.T) {
 	}
 }
 
-func uploadReceipt(receiptNameToUpload string, tags []string) string {
+func uploadReceipt(receiptNameToUpload string, tags []string) *model.Receipt {
 	url := "http://localhost:8084/v1/receipt"
 	method := "POST"
 	payload := &bytes.Buffer{}
@@ -46,7 +46,7 @@ func uploadReceipt(receiptNameToUpload string, tags []string) string {
 	_, errFile1 = io.Copy(part1, file)
 	if errFile1 != nil {
 		log.Fatal(errFile1)
-		return ""
+		return nil
 	}
 	if len(tags) > 0 {
 		wr, err := writer.CreateFormField("json")
@@ -66,33 +66,33 @@ func uploadReceipt(receiptNameToUpload string, tags []string) string {
 	err := writer.Close()
 	if err != nil {
 		log.Fatal(err)
-		return ""
+		return nil
 	}
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
 
 	if err != nil {
 		log.Fatal(err)
-		return ""
+		return nil
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	res, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
-		return ""
+		return nil
 	}
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		log.Fatal(err)
-		return ""
+		return nil
 	}
-	uploadModelRes := &v1.UploadResultModel{}
+	uploadModelRes := &model.Receipt{}
 	err = json.Unmarshal(body, uploadModelRes)
 	if err != nil {
 		log.Fatal(err)
-		return ""
+		return nil
 	}
 	log.Infof("id is %s", string(body))
-	return uploadModelRes.Id
+	return uploadModelRes
 }

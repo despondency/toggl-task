@@ -3,8 +3,9 @@ package v1
 import (
 	"context"
 	"fmt"
+	"github.com/despondency/toggl-task/internal/model"
 	"github.com/gofiber/fiber/v2/log"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 )
@@ -28,8 +29,8 @@ func TestIntegration_GetReceipt(t *testing.T) {
 	}
 }
 
-func getReceipt(id string) {
-	url := fmt.Sprintf("http://localhost:8084/v1/receipt?id=%s", id)
+func getReceipt(receipt *model.Receipt) {
+	url := fmt.Sprintf("http://localhost:8084/v1/receipt?id=%s", receipt.Id.Hex())
 	method := "GET"
 
 	client := &http.Client{}
@@ -46,7 +47,7 @@ func getReceipt(id string) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		log.Fatal(err)
 		return

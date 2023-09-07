@@ -11,10 +11,6 @@ import (
 	"net/http"
 )
 
-type UploadResultModel struct {
-	Id string `json:"id"`
-}
-
 type UploadReceiptHandler struct {
 	receiptSvc service.ReceiptServicer
 }
@@ -45,14 +41,16 @@ func (urh *UploadReceiptHandler) GetUploadFileHandler() func(c *fiber.Ctx) error
 			c.Response().AppendBodyString(fmt.Sprintf("unknown mime type %s", mimeType))
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
-		reqBody := c.FormValue("json")
+		jsonValue := c.FormValue("json")
 		uploadReceiptBody := &service.UploadReceiptBody{}
-		err = json.Unmarshal([]byte(reqBody), uploadReceiptBody)
-		if err != nil {
-			c.Response().AppendBodyString(fmt.Sprintf("failed to extract body"))
-			return c.SendStatus(fiber.StatusBadRequest)
+		if jsonValue != "" {
+			err = json.Unmarshal([]byte(jsonValue), uploadReceiptBody)
+			if err != nil {
+				c.Response().AppendBodyString(fmt.Sprintf("failed to extract body"))
+				return c.SendStatus(fiber.StatusBadRequest)
+			}
 		}
-		fileUploadID, err := urh.receiptSvc.CreateReceipt(context.Background(), &service.UploadPayload{
+		receiptModel, err := urh.receiptSvc.CreateReceipt(context.Background(), &service.UploadPayload{
 			UploadReceiptBody: uploadReceiptBody,
 			FilePayload: &service.FilePayload{
 				Receipt:  buf.Bytes(),
@@ -64,7 +62,7 @@ func (urh *UploadReceiptHandler) GetUploadFileHandler() func(c *fiber.Ctx) error
 			c.Response().AppendBodyString(fmt.Sprintf("could not persist %v", err))
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
-		err = c.JSON(&UploadResultModel{Id: fileUploadID})
+		err = c.JSON(receiptModel)
 		if err != nil {
 			c.Response().AppendBodyString("cannot add result uuid to body")
 			return c.SendStatus(fiber.StatusInternalServerError)

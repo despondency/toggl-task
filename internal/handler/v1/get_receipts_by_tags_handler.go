@@ -2,12 +2,18 @@ package v1
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"github.com/despondency/toggl-task/internal/model"
 	"github.com/despondency/toggl-task/internal/service"
 	"github.com/gofiber/fiber/v2"
+	"strconv"
 	"strings"
 )
+
+type GetReceiptsByTagsResponse struct {
+	Receipts    []*model.Receipt `json:"receipts"`
+	TotalAmount float64          `json:"total_amount"`
+}
 
 type GetReceiptsByTagsResultHandler struct {
 	receiptService service.ReceiptServicer
@@ -36,11 +42,26 @@ func (grrh *GetReceiptResultHandler) GetReceiptsByTagHandler() func(c *fiber.Ctx
 			c.Response().AppendBodyString(fmt.Sprintf("err: %v", err))
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
-		jsonStr, err := json.Marshal(r)
+		resp := &GetReceiptsByTagsResponse{
+			Receipts: r,
+		}
+		var total float64 = 0
+		for _, receipt := range r {
+			if receipt.TotalAmount != nil {
+				parsed, err := strconv.ParseFloat(*receipt.TotalAmount, 64)
+				if err != nil {
+					c.Response().AppendBodyString(fmt.Sprintf("failed parsing %s amount", *receipt.TotalAmount))
+					return c.SendStatus(fiber.StatusInternalServerError)
+				}
+				total += parsed
+			}
+		}
+		resp.TotalAmount = total
+		err = c.JSON(resp)
 		if err != nil {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
-		return c.SendString(string(jsonStr))
+		return c.SendStatus(fiber.StatusOK)
 	}
 	return handler
 }

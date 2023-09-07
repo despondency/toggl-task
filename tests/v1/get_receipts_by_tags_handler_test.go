@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/despondency/toggl-task/internal/persister"
+	v1 "github.com/despondency/toggl-task/internal/handler/v1"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"log"
@@ -40,15 +40,15 @@ func TestIntegration_GetReceiptsByTags(t *testing.T) {
 			for i, receiptNameToUpload := range tc.receiptNamesToUpload {
 				uploadReceipt(receiptNameToUpload, tc.tags[i])
 			}
-			assert.Equal(t, 1, len(getReceiptsByTags([]string{"tag4"})))
-			assert.Equal(t, 2, len(getReceiptsByTags([]string{"tag1"})))
-			assert.Equal(t, 2, len(getReceiptsByTags([]string{"tag2"})))
-			assert.Equal(t, 1, len(getReceiptsByTags([]string{"tag1", "tag2"})))
+			assert.Equal(t, 1, len(getReceiptsByTags([]string{"tag4"}).Receipts))
+			assert.Equal(t, 2, len(getReceiptsByTags([]string{"tag1"}).Receipts))
+			assert.Equal(t, 2, len(getReceiptsByTags([]string{"tag2"}).Receipts))
+			assert.Equal(t, 1, len(getReceiptsByTags([]string{"tag1", "tag2"}).Receipts))
 		})
 	}
 }
 
-func getReceiptsByTags(tags []string) []*persister.ResultModel {
+func getReceiptsByTags(tags []string) *v1.GetReceiptsByTagsResponse {
 	url := fmt.Sprintf("http://localhost:8084/v1/receipts-by-tags?tags=%s", strings.Join(tags, ","))
 	method := "GET"
 
@@ -71,7 +71,7 @@ func getReceiptsByTags(tags []string) []*persister.ResultModel {
 		log.Fatal(err)
 		return nil
 	}
-	resp := make([]*persister.ResultModel, 0)
+	resp := &v1.GetReceiptsByTagsResponse{}
 	err = json.Unmarshal(body, &resp)
 	if err != nil {
 		log.Fatal(err)
