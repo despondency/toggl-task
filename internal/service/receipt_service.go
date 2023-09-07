@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/despondency/toggl-task/internal/model"
 	"github.com/despondency/toggl-task/internal/persister"
 	"github.com/despondency/toggl-task/internal/scanner"
 )
@@ -22,9 +23,9 @@ type FilePayload struct {
 }
 
 type ReceiptServicer interface {
-	CreateReceipt(ctx context.Context, payload *UploadPayload) (string, error)
-	GetReceipt(ctx context.Context, uuid string) (*persister.ResultModel, error)
-	GetReceiptsByTags(ctx context.Context, tags []string) ([]*persister.ResultModel, error)
+	CreateReceipt(ctx context.Context, payload *UploadPayload) (*model.Receipt, error)
+	GetReceipt(ctx context.Context, uuid string) (*model.Receipt, error)
+	GetReceiptsByTags(ctx context.Context, tags []string) ([]*model.Receipt, error)
 }
 
 type MultiServicer struct {
@@ -42,25 +43,23 @@ func NewMultiServicer(rawFilePersister persister.RawFilePersister, resultPersist
 	}
 }
 
-func (ms *MultiServicer) GetReceipt(ctx context.Context, uuid string) (*persister.ResultModel, error) {
+func (ms *MultiServicer) GetReceipt(ctx context.Context, uuid string) (*model.Receipt, error) {
 	return ms.resultPersister.Get(ctx, uuid)
 }
 
-func (ms *MultiServicer) GetReceiptsByTags(ctx context.Context, tags []string) ([]*persister.ResultModel, error) {
+func (ms *MultiServicer) GetReceiptsByTags(ctx context.Context, tags []string) ([]*model.Receipt, error) {
 	return ms.resultPersister.GetByTags(ctx, tags)
 }
 
-func (ms *MultiServicer) CreateReceipt(ctx context.Context, payload *UploadPayload) (string, error) {
+func (ms *MultiServicer) CreateReceipt(ctx context.Context, payload *UploadPayload) (*model.Receipt, error) {
 	err := ms.rawFilePersister.Persist(payload.FileName, payload.Receipt)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	res, err := ms.scanner.Scan(ctx, payload.Receipt, payload.MimeType)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return ms.resultPersister.Persist(ctx, &persister.ResultModel{
-		Payload: res.Result,
-		Tags:    payload.Tags,
-	})
+	res.Tags = payload.Tags
+	return ms.resultPersister.Persist(ctx, res)
 }

@@ -5,7 +5,7 @@ package servicemock
 import (
 	context "context"
 
-	persister "github.com/despondency/toggl-task/internal/persister"
+	model "github.com/despondency/toggl-task/internal/model"
 	mock "github.com/stretchr/testify/mock"
 
 	service "github.com/despondency/toggl-task/internal/service"
@@ -25,18 +25,20 @@ func (_m *ReceiptServicer) EXPECT() *ReceiptServicer_Expecter {
 }
 
 // CreateReceipt provides a mock function with given fields: ctx, payload
-func (_m *ReceiptServicer) CreateReceipt(ctx context.Context, payload *service.UploadPayload) (string, error) {
+func (_m *ReceiptServicer) CreateReceipt(ctx context.Context, payload *service.UploadPayload) (*model.Receipt, error) {
 	ret := _m.Called(ctx, payload)
 
-	var r0 string
+	var r0 *model.Receipt
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *service.UploadPayload) (string, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *service.UploadPayload) (*model.Receipt, error)); ok {
 		return rf(ctx, payload)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *service.UploadPayload) string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *service.UploadPayload) *model.Receipt); ok {
 		r0 = rf(ctx, payload)
 	} else {
-		r0 = ret.Get(0).(string)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.Receipt)
+		}
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *service.UploadPayload) error); ok {
@@ -67,30 +69,30 @@ func (_c *ReceiptServicer_CreateReceipt_Call) Run(run func(ctx context.Context, 
 	return _c
 }
 
-func (_c *ReceiptServicer_CreateReceipt_Call) Return(_a0 string, _a1 error) *ReceiptServicer_CreateReceipt_Call {
+func (_c *ReceiptServicer_CreateReceipt_Call) Return(_a0 *model.Receipt, _a1 error) *ReceiptServicer_CreateReceipt_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ReceiptServicer_CreateReceipt_Call) RunAndReturn(run func(context.Context, *service.UploadPayload) (string, error)) *ReceiptServicer_CreateReceipt_Call {
+func (_c *ReceiptServicer_CreateReceipt_Call) RunAndReturn(run func(context.Context, *service.UploadPayload) (*model.Receipt, error)) *ReceiptServicer_CreateReceipt_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetReceipt provides a mock function with given fields: ctx, uuid
-func (_m *ReceiptServicer) GetReceipt(ctx context.Context, uuid string) (*persister.ResultModel, error) {
+func (_m *ReceiptServicer) GetReceipt(ctx context.Context, uuid string) (*model.Receipt, error) {
 	ret := _m.Called(ctx, uuid)
 
-	var r0 *persister.ResultModel
+	var r0 *model.Receipt
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*persister.ResultModel, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*model.Receipt, error)); ok {
 		return rf(ctx, uuid)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *persister.ResultModel); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *model.Receipt); ok {
 		r0 = rf(ctx, uuid)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*persister.ResultModel)
+			r0 = ret.Get(0).(*model.Receipt)
 		}
 	}
 
@@ -122,30 +124,30 @@ func (_c *ReceiptServicer_GetReceipt_Call) Run(run func(ctx context.Context, uui
 	return _c
 }
 
-func (_c *ReceiptServicer_GetReceipt_Call) Return(_a0 *persister.ResultModel, _a1 error) *ReceiptServicer_GetReceipt_Call {
+func (_c *ReceiptServicer_GetReceipt_Call) Return(_a0 *model.Receipt, _a1 error) *ReceiptServicer_GetReceipt_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ReceiptServicer_GetReceipt_Call) RunAndReturn(run func(context.Context, string) (*persister.ResultModel, error)) *ReceiptServicer_GetReceipt_Call {
+func (_c *ReceiptServicer_GetReceipt_Call) RunAndReturn(run func(context.Context, string) (*model.Receipt, error)) *ReceiptServicer_GetReceipt_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetReceiptsByTags provides a mock function with given fields: ctx, tags
-func (_m *ReceiptServicer) GetReceiptsByTags(ctx context.Context, tags []string) ([]*persister.ResultModel, error) {
+func (_m *ReceiptServicer) GetReceiptsByTags(ctx context.Context, tags []string) ([]*model.Receipt, error) {
 	ret := _m.Called(ctx, tags)
 
-	var r0 []*persister.ResultModel
+	var r0 []*model.Receipt
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []string) ([]*persister.ResultModel, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string) ([]*model.Receipt, error)); ok {
 		return rf(ctx, tags)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []string) []*persister.ResultModel); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string) []*model.Receipt); ok {
 		r0 = rf(ctx, tags)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*persister.ResultModel)
+			r0 = ret.Get(0).([]*model.Receipt)
 		}
 	}
 
@@ -177,12 +179,12 @@ func (_c *ReceiptServicer_GetReceiptsByTags_Call) Run(run func(ctx context.Conte
 	return _c
 }
 
-func (_c *ReceiptServicer_GetReceiptsByTags_Call) Return(_a0 []*persister.ResultModel, _a1 error) *ReceiptServicer_GetReceiptsByTags_Call {
+func (_c *ReceiptServicer_GetReceiptsByTags_Call) Return(_a0 []*model.Receipt, _a1 error) *ReceiptServicer_GetReceiptsByTags_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ReceiptServicer_GetReceiptsByTags_Call) RunAndReturn(run func(context.Context, []string) ([]*persister.ResultModel, error)) *ReceiptServicer_GetReceiptsByTags_Call {
+func (_c *ReceiptServicer_GetReceiptsByTags_Call) RunAndReturn(run func(context.Context, []string) ([]*model.Receipt, error)) *ReceiptServicer_GetReceiptsByTags_Call {
 	_c.Call.Return(run)
 	return _c
 }

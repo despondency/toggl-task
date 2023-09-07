@@ -5,7 +5,7 @@ package persistermock
 import (
 	context "context"
 
-	persister "github.com/despondency/toggl-task/internal/persister"
+	model "github.com/despondency/toggl-task/internal/model"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -23,19 +23,19 @@ func (_m *ResultPersister) EXPECT() *ResultPersister_Expecter {
 }
 
 // Get provides a mock function with given fields: ctx, id
-func (_m *ResultPersister) Get(ctx context.Context, id string) (*persister.ResultModel, error) {
+func (_m *ResultPersister) Get(ctx context.Context, id string) (*model.Receipt, error) {
 	ret := _m.Called(ctx, id)
 
-	var r0 *persister.ResultModel
+	var r0 *model.Receipt
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*persister.ResultModel, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*model.Receipt, error)); ok {
 		return rf(ctx, id)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *persister.ResultModel); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *model.Receipt); ok {
 		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*persister.ResultModel)
+			r0 = ret.Get(0).(*model.Receipt)
 		}
 	}
 
@@ -67,30 +67,30 @@ func (_c *ResultPersister_Get_Call) Run(run func(ctx context.Context, id string)
 	return _c
 }
 
-func (_c *ResultPersister_Get_Call) Return(_a0 *persister.ResultModel, _a1 error) *ResultPersister_Get_Call {
+func (_c *ResultPersister_Get_Call) Return(_a0 *model.Receipt, _a1 error) *ResultPersister_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ResultPersister_Get_Call) RunAndReturn(run func(context.Context, string) (*persister.ResultModel, error)) *ResultPersister_Get_Call {
+func (_c *ResultPersister_Get_Call) RunAndReturn(run func(context.Context, string) (*model.Receipt, error)) *ResultPersister_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByTags provides a mock function with given fields: ctx, tags
-func (_m *ResultPersister) GetByTags(ctx context.Context, tags []string) ([]*persister.ResultModel, error) {
+func (_m *ResultPersister) GetByTags(ctx context.Context, tags []string) ([]*model.Receipt, error) {
 	ret := _m.Called(ctx, tags)
 
-	var r0 []*persister.ResultModel
+	var r0 []*model.Receipt
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []string) ([]*persister.ResultModel, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string) ([]*model.Receipt, error)); ok {
 		return rf(ctx, tags)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []string) []*persister.ResultModel); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string) []*model.Receipt); ok {
 		r0 = rf(ctx, tags)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*persister.ResultModel)
+			r0 = ret.Get(0).([]*model.Receipt)
 		}
 	}
 
@@ -122,33 +122,35 @@ func (_c *ResultPersister_GetByTags_Call) Run(run func(ctx context.Context, tags
 	return _c
 }
 
-func (_c *ResultPersister_GetByTags_Call) Return(_a0 []*persister.ResultModel, _a1 error) *ResultPersister_GetByTags_Call {
+func (_c *ResultPersister_GetByTags_Call) Return(_a0 []*model.Receipt, _a1 error) *ResultPersister_GetByTags_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ResultPersister_GetByTags_Call) RunAndReturn(run func(context.Context, []string) ([]*persister.ResultModel, error)) *ResultPersister_GetByTags_Call {
+func (_c *ResultPersister_GetByTags_Call) RunAndReturn(run func(context.Context, []string) ([]*model.Receipt, error)) *ResultPersister_GetByTags_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Persist provides a mock function with given fields: ctx, model
-func (_m *ResultPersister) Persist(ctx context.Context, model *persister.ResultModel) (string, error) {
-	ret := _m.Called(ctx, model)
+// Persist provides a mock function with given fields: ctx, _a1
+func (_m *ResultPersister) Persist(ctx context.Context, _a1 *model.Receipt) (*model.Receipt, error) {
+	ret := _m.Called(ctx, _a1)
 
-	var r0 string
+	var r0 *model.Receipt
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *persister.ResultModel) (string, error)); ok {
-		return rf(ctx, model)
+	if rf, ok := ret.Get(0).(func(context.Context, *model.Receipt) (*model.Receipt, error)); ok {
+		return rf(ctx, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *persister.ResultModel) string); ok {
-		r0 = rf(ctx, model)
+	if rf, ok := ret.Get(0).(func(context.Context, *model.Receipt) *model.Receipt); ok {
+		r0 = rf(ctx, _a1)
 	} else {
-		r0 = ret.Get(0).(string)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.Receipt)
+		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *persister.ResultModel) error); ok {
-		r1 = rf(ctx, model)
+	if rf, ok := ret.Get(1).(func(context.Context, *model.Receipt) error); ok {
+		r1 = rf(ctx, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -163,24 +165,24 @@ type ResultPersister_Persist_Call struct {
 
 // Persist is a helper method to define mock.On call
 //   - ctx context.Context
-//   - model *persister.ResultModel
-func (_e *ResultPersister_Expecter) Persist(ctx interface{}, model interface{}) *ResultPersister_Persist_Call {
-	return &ResultPersister_Persist_Call{Call: _e.mock.On("Persist", ctx, model)}
+//   - _a1 *model.Receipt
+func (_e *ResultPersister_Expecter) Persist(ctx interface{}, _a1 interface{}) *ResultPersister_Persist_Call {
+	return &ResultPersister_Persist_Call{Call: _e.mock.On("Persist", ctx, _a1)}
 }
 
-func (_c *ResultPersister_Persist_Call) Run(run func(ctx context.Context, model *persister.ResultModel)) *ResultPersister_Persist_Call {
+func (_c *ResultPersister_Persist_Call) Run(run func(ctx context.Context, _a1 *model.Receipt)) *ResultPersister_Persist_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*persister.ResultModel))
+		run(args[0].(context.Context), args[1].(*model.Receipt))
 	})
 	return _c
 }
 
-func (_c *ResultPersister_Persist_Call) Return(_a0 string, _a1 error) *ResultPersister_Persist_Call {
+func (_c *ResultPersister_Persist_Call) Return(_a0 *model.Receipt, _a1 error) *ResultPersister_Persist_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ResultPersister_Persist_Call) RunAndReturn(run func(context.Context, *persister.ResultModel) (string, error)) *ResultPersister_Persist_Call {
+func (_c *ResultPersister_Persist_Call) RunAndReturn(run func(context.Context, *model.Receipt) (*model.Receipt, error)) *ResultPersister_Persist_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -4,55 +4,20 @@ import (
 	documentai "cloud.google.com/go/documentai/apiv1"
 	"cloud.google.com/go/documentai/apiv1/documentaipb"
 	"context"
-	"encoding/json"
 	"fmt"
+	"github.com/despondency/toggl-task/internal/model"
 	"google.golang.org/api/option"
 )
 
-type ScannedResult struct {
-	Result string `json:"result"`
-}
-
-type Model struct {
-	Currency        *string
-	DeliveryDate    *string
-	DueDate         *string
-	InvoiceDate     *string
-	ReceiptDate     *string
-	NetAmount       *string
-	TotalAmount     *string
-	TotalTaxAmount  *string
-	VatAmount       *string
-	VatCategoryCode *string
-	VatTaxAmount    *string
-	VatTaxRate      *string
-	Items           []*Item
-}
-
-type Item struct {
-	Amount        *int
-	Txt           *string
-	Description   *string
-	ProductCode   *string
-	PurchaseOrder *string
-	Quantity      *string
-	Unit          *string
-	UnitPrice     *string
-}
-
-func (m *Model) String() string {
-	return fmt.Sprintln(m.TotalAmount)
-}
-
 type Scanner interface {
-	Scan(ctx context.Context, fileContent []byte, mimeType string) (*ScannedResult, error)
+	Scan(ctx context.Context, fileContent []byte, mimeType string) (*model.Receipt, error)
 }
 
 type GoogleScanner struct {
 	client *documentai.DocumentProcessorClient
 }
 
-func (gs *GoogleScanner) Scan(ctx context.Context, fileContent []byte, mimeType string) (*ScannedResult, error) {
+func (gs *GoogleScanner) Scan(ctx context.Context, fileContent []byte, mimeType string) (*model.Receipt, error) {
 	req := &documentaipb.ProcessRequest{
 		SkipHumanReview: true,
 		// this is hardcoded, in a real life project i'd inject from env variables or read from Vault.
@@ -66,59 +31,50 @@ func (gs *GoogleScanner) Scan(ctx context.Context, fileContent []byte, mimeType 
 	}
 	resp, err := gs.client.ProcessDocument(ctx, req)
 	if err != nil {
-		fmt.Println(fmt.Errorf("processDocument: %w", err))
+		return nil, err
 	}
 	// Handle the results.
 	document := resp.GetDocument()
-	model := createModel(document)
-
-	_ = model
-
-	entities, err := json.Marshal(document.GetEntities())
-	if err != nil {
-		panic(err)
-	}
-	return &ScannedResult{
-		Result: string(entities),
-	}, nil
+	m := createModel(document)
+	return m, nil
 }
 
-func createModel(document *documentaipb.Document) *Model {
-	model := &Model{
-		Items: make([]*Item, 0),
+func createModel(document *documentaipb.Document) *model.Receipt {
+	m := &model.Receipt{
+		Items: make([]*model.Item, 0),
 	}
-	var i *Item
+	var i *model.Item
 	for _, entity := range document.GetEntities() {
 		switch entity.GetType() {
 		case "currency":
-			model.Currency = strPtr(entity.GetMentionText())
+			m.Currency = strPtr(entity.GetMentionText())
 		case "delivery_date":
-			model.DeliveryDate = strPtr(entity.GetMentionText())
+			m.DeliveryDate = strPtr(entity.GetMentionText())
 		case "due_date":
-			model.DueDate = strPtr(entity.GetMentionText())
+			m.DueDate = strPtr(entity.GetMentionText())
 		case "invoice_date":
-			model.InvoiceDate = strPtr(entity.GetMentionText())
+			m.InvoiceDate = strPtr(entity.GetMentionText())
 		case "receipt_date":
-			model.ReceiptDate = strPtr(entity.GetMentionText())
+			m.ReceiptDate = strPtr(entity.GetMentionText())
 		case "net_amount":
-			model.NetAmount = strPtr(entity.GetMentionText())
+			m.NetAmount = strPtr(entity.GetMentionText())
 		case "total_amount":
-			model.TotalAmount = strPtr(entity.GetMentionText())
+			m.TotalAmount = strPtr(entity.GetMentionText())
 		case "total_tax_amount":
-			model.TotalTaxAmount = strPtr(entity.GetMentionText())
+			m.TotalTaxAmount = strPtr(entity.GetMentionText())
 		case "vat_amount":
-			model.VatAmount = strPtr(entity.GetMentionText())
+			m.VatAmount = strPtr(entity.GetMentionText())
 		case "vat_category_code":
 			vatCategoryCode := entity.GetMentionText()
-			model.VatCategoryCode = &vatCategoryCode
+			m.VatCategoryCode = &vatCategoryCode
 		case "vat_tax_amount":
-			model.VatTaxAmount = strPtr(entity.GetMentionText())
+			m.VatTaxAmount = strPtr(entity.GetMentionText())
 		case "vat_tax_rate":
-			model.VatTaxRate = strPtr(entity.GetMentionText())
+			m.VatTaxRate = strPtr(entity.GetMentionText())
 		case "line_item":
-			i = &Item{}
+			i = &model.Item{}
 			i.Txt = strPtr(entity.GetMentionText())
-			model.Items = append(model.Items, i)
+			m.Items = append(m.Items, i)
 		case "line_item/description":
 			i.Description = strPtr(entity.GetMentionText())
 		case "line_item/product_code":
@@ -133,7 +89,7 @@ func createModel(document *documentaipb.Document) *Model {
 			i.UnitPrice = strPtr(entity.GetMentionText())
 		}
 	}
-	return model
+	return m
 }
 
 func strPtr(s string) *string {
