@@ -23,7 +23,7 @@ func TestIntegration_GetReceipt(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			getReceipt(uploadReceipt())
+			getReceipt(uploadReceipt("receipt1.png", []string{}))
 		})
 	}
 }

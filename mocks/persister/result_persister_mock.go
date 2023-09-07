@@ -77,6 +77,61 @@ func (_c *ResultPersister_Get_Call) RunAndReturn(run func(context.Context, strin
 	return _c
 }
 
+// GetByTags provides a mock function with given fields: ctx, tags
+func (_m *ResultPersister) GetByTags(ctx context.Context, tags []string) ([]*persister.ResultModel, error) {
+	ret := _m.Called(ctx, tags)
+
+	var r0 []*persister.ResultModel
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []string) ([]*persister.ResultModel, error)); ok {
+		return rf(ctx, tags)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []string) []*persister.ResultModel); ok {
+		r0 = rf(ctx, tags)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*persister.ResultModel)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []string) error); ok {
+		r1 = rf(ctx, tags)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ResultPersister_GetByTags_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByTags'
+type ResultPersister_GetByTags_Call struct {
+	*mock.Call
+}
+
+// GetByTags is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tags []string
+func (_e *ResultPersister_Expecter) GetByTags(ctx interface{}, tags interface{}) *ResultPersister_GetByTags_Call {
+	return &ResultPersister_GetByTags_Call{Call: _e.mock.On("GetByTags", ctx, tags)}
+}
+
+func (_c *ResultPersister_GetByTags_Call) Run(run func(ctx context.Context, tags []string)) *ResultPersister_GetByTags_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]string))
+	})
+	return _c
+}
+
+func (_c *ResultPersister_GetByTags_Call) Return(_a0 []*persister.ResultModel, _a1 error) *ResultPersister_GetByTags_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ResultPersister_GetByTags_Call) RunAndReturn(run func(context.Context, []string) ([]*persister.ResultModel, error)) *ResultPersister_GetByTags_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Persist provides a mock function with given fields: ctx, model
 func (_m *ResultPersister) Persist(ctx context.Context, model *persister.ResultModel) (string, error) {
 	ret := _m.Called(ctx, model)

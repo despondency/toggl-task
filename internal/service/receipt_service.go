@@ -12,7 +12,7 @@ type UploadReceiptBody struct {
 
 type UploadPayload struct {
 	*UploadReceiptBody
-	FilePayload
+	*FilePayload
 }
 
 type FilePayload struct {
@@ -22,8 +22,9 @@ type FilePayload struct {
 }
 
 type ReceiptServicer interface {
-	CreateReceipt(ctx context.Context, payload UploadPayload) (string, error)
+	CreateReceipt(ctx context.Context, payload *UploadPayload) (string, error)
 	GetReceipt(ctx context.Context, uuid string) (*persister.ResultModel, error)
+	GetReceiptsByTags(ctx context.Context, tags []string) ([]*persister.ResultModel, error)
 }
 
 type MultiServicer struct {
@@ -45,7 +46,11 @@ func (ms *MultiServicer) GetReceipt(ctx context.Context, uuid string) (*persiste
 	return ms.resultPersister.Get(ctx, uuid)
 }
 
-func (ms *MultiServicer) CreateReceipt(ctx context.Context, payload UploadPayload) (string, error) {
+func (ms *MultiServicer) GetReceiptsByTags(ctx context.Context, tags []string) ([]*persister.ResultModel, error) {
+	return ms.resultPersister.GetByTags(ctx, tags)
+}
+
+func (ms *MultiServicer) CreateReceipt(ctx context.Context, payload *UploadPayload) (string, error) {
 	err := ms.rawFilePersister.Persist(payload.FileName, payload.Receipt)
 	if err != nil {
 		return "", err

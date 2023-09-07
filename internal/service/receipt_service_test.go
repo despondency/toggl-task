@@ -33,7 +33,7 @@ func TestUnitMultiServicer_CreateReceipt(t *testing.T) {
 				rawp := persistermock.NewRawFilePersister(t)
 				rawp.EXPECT().Persist("", []byte{}).Return(nil)
 				rp := persistermock.NewResultPersister(t)
-				rp.EXPECT().Persist(ctx, &persister.ResultModel{UUID: "", Payload: "res"}).Return("1234", nil)
+				rp.EXPECT().Persist(ctx, &persister.ResultModel{Payload: "res"}).Return("1234", nil)
 				s := scannermock.NewScanner(t)
 				s.EXPECT().Scan(ctx, []byte{}, mock.AnythingOfType("string")).Return(&scanner.ScannedResult{Result: "res"}, nil)
 				return service.NewMultiServicer(rawp, rp, s)
@@ -43,7 +43,14 @@ func TestUnitMultiServicer_CreateReceipt(t *testing.T) {
 
 	for _, tc := range testCases {
 		instance := tc.createInstance(tc.ctx, t)
-		id, err := instance.CreateReceipt(tc.ctx, tc.fileName, tc.fileContent, tc.mimeType)
+		id, err := instance.CreateReceipt(tc.ctx, &service.UploadPayload{
+			UploadReceiptBody: &service.UploadReceiptBody{},
+			FilePayload: &service.FilePayload{
+				Receipt:  tc.fileContent,
+				FileName: tc.fileName,
+				MimeType: tc.mimeType,
+			},
+		})
 		assert.Equal(t, id, tc.idExpected)
 		if tc.errExpected != "" && err != nil {
 			assert.EqualErrorf(t, err, tc.errExpected, "", err)

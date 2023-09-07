@@ -68,9 +68,10 @@ func TestUnitTranslator_Translate(t *testing.T) {
 			},
 		},
 		{
-			name:     "translate, returned empty response",
-			text:     "c'est la vie",
-			language: "en",
+			name:        "translate, returned empty response",
+			text:        "c'est la vie",
+			language:    "en",
+			expectedErr: fmt.Errorf("translate returned empty response to text: c'est la vie"),
 			createInstance: func(tc *testCase, t *testing.T) translator.Translator {
 				caller := translatormock.NewCaller(t)
 				targetLang, err := language.Parse(tc.language)
