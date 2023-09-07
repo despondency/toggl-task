@@ -4,10 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/gofiber/fiber/v2/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"time"
+)
+
+const (
+	databaseName          = "toggl_db"
+	receiptCollectionName = "receipt_results"
 )
 
 type ResultModel struct {
@@ -26,6 +32,25 @@ type MongoPersister struct {
 }
 
 func NewMongoPersister(client *mongo.Client) ResultPersister {
+	col := client.Database(databaseName).Collection(receiptCollectionName)
+	// index creation is idempotent in mongo, so we can do it on startup always
+	// for older collections it might take a while so this need to be taken in consideration!
+	nameOfIdx, err := col.Indexes().CreateOne(
+		context.Background(),
+		mongo.IndexModel{
+			Keys: bson.D{
+				{
+					Key:   "tags",
+					Value: 1,
+				},
+			},
+		},
+	)
+	log.Infof("index: %s, created successfully", nameOfIdx)
+	if err != nil {
+		panic(err)
+	}
+
 	return &MongoPersister{
 		client: client,
 	}
@@ -34,7 +59,7 @@ func NewMongoPersister(client *mongo.Client) ResultPersister {
 func (mp *MongoPersister) Get(ctx context.Context, id string) (*ResultModel, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	col := mp.client.Database("toggl_db").Collection("receipt_results")
+	col := mp.client.Database(databaseName).Collection(receiptCollectionName)
 	res := &ResultModel{}
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -79,7 +104,7 @@ func (mp *MongoPersister) GetByTags(ctx context.Context, tags []string) ([]*Resu
 func (mp *MongoPersister) Persist(ctx context.Context, model *ResultModel) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	col := mp.client.Database("toggl_db").Collection("receipt_results")
+	col := mp.client.Database(databaseName).Collection(receiptCollectionName)
 	res, err := col.InsertOne(ctx, model)
 	if err != nil {
 		return "", err
