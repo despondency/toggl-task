@@ -33,11 +33,16 @@ type MongoPersister struct {
 
 func NewMongoPersister(client *mongo.Client) ResultPersister {
 	col := client.Database(databaseName).Collection(receiptCollectionName)
+	// index creation is idempotent in mongo, so we can do it on startup always
+	// for older collections it might take a while so this need to be taken in consideration!
 	nameOfIdx, err := col.Indexes().CreateOne(
 		context.Background(),
 		mongo.IndexModel{
-			Keys: bson.M{
-				"tags": 1,
+			Keys: bson.D{
+				{
+					Key:   "tags",
+					Value: 1,
+				},
 			},
 		},
 	)
